@@ -41,7 +41,7 @@ export const canNativeShare = () => typeof navigator !== "undefined" && typeof n
 export async function nativeShare(quote: Quote): Promise<NativeShareResult> {
   if (!canNativeShare()) return "unsupported";
   try {
-    await navigator.share({ title: "QUOTE.EXE", text: formatQuote(quote) });
+    await navigator.share({ title: "QUOTE.EXE", text: formatQuote(quote), url: SITE_URL });
     return "shared";
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") return "cancelled";
@@ -61,21 +61,26 @@ export interface ShareTarget {
  * They are ordinary https links, so they work anywhere a link can open a tab —
  * including embeds that block the Web Share API.
  */
+/** Public home of the app, appended to shared posts so people can click through. */
+export const SITE_URL = "https://aasthas141-gif.github.io/Quote-Generator/";
+
 export function shareTargets(quote: Quote): ShareTarget[] {
   const line = `“${quote.text}” — ${quote.author}`;
-  const t = encodeURIComponent(line);
+  const withLink = `${line}\n\nvia QUOTE.EXE ${SITE_URL}`;
+  const t = encodeURIComponent(withLink);
+  const e = encodeURIComponent;
   return [
     { id: "x", name: "X / Twitter", tag: "X", href: `https://x.com/intent/post?text=${t}` },
     { id: "whatsapp", name: "WhatsApp", tag: "WA", href: `https://wa.me/?text=${t}` },
     { id: "linkedin", name: "LinkedIn", tag: "IN", href: `https://www.linkedin.com/feed/?shareActive=true&text=${t}` },
-    { id: "telegram", name: "Telegram", tag: "TG", href: `https://t.me/share/url?url=${t}` },
+    { id: "telegram", name: "Telegram", tag: "TG", href: `https://t.me/share/url?url=${e(SITE_URL)}&text=${e(line)}` },
     { id: "threads", name: "Threads", tag: "TH", href: `https://www.threads.net/intent/post?text=${t}` },
     { id: "bluesky", name: "Bluesky", tag: "BS", href: `https://bsky.app/intent/compose?text=${t}` },
     {
       id: "reddit",
       name: "Reddit",
       tag: "RD",
-      href: `https://www.reddit.com/submit?type=TEXT&title=${encodeURIComponent(line.slice(0, 300))}`,
+      href: `https://www.reddit.com/submit?url=${e(SITE_URL)}&title=${e(line.slice(0, 300))}`,
     },
   ];
 }
