@@ -1,0 +1,225 @@
+@import "tailwindcss";
+
+/* 8bitcn components style dark mode with `dark:`; the app is dark-only, so <html> always carries .dark. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * QUOTE.EXE theme — shadcn/8bitcn token names mapped onto the
+ * product palette. Every 8bitcn component reads these variables,
+ * so the pixel borders, shadows and fills stay on-palette.
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Roles. Light = the QUOTE.EXE arcade palette; dark = 8bitcn's "Dungeon Torch". */
+  --color-ink: #111111; /* text on hot/go fills — same in both themes */
+  --color-go: #22c55e; /* success */
+  --color-pink: var(--hot); /* main accent: pink → torch amber */
+  --color-blue: var(--cool); /* second accent: blue → lantern gold */
+  --color-on-cool: var(--on-cool);
+  --color-edge: var(--edge); /* pixel borders and hard shadows */
+  --color-line: var(--line); /* strong text */
+  --color-solid: var(--solid); /* selected chips, counters */
+  --color-on-solid: var(--on-solid);
+  --color-screen: var(--screen); /* CRT screen, title bar */
+  --color-screen-fg: var(--screen-fg);
+  --color-text: var(--text); /* running text */
+  --color-link: var(--link); /* accent used as text */
+
+  --font-body: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-quote: "Newsreader Variable", ui-serif, Georgia, serif;
+  --font-pixel: "Press Start 2P", ui-monospace, monospace;
+
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+}
+
+/*
+ * Dark only — 8bitcn "Dungeon Torch" (values from 8bitcn's .dark .theme-dungeon-torch).
+ * The page sits on the same soot-brown as the panels, like the 8bitcn dashboard;
+ * dim bronze pixel borders separate the tiles, torch amber is the accent.
+ */
+:root {
+  color-scheme: dark;
+  --radius: 0rem;
+  --background: oklch(0.18 0.02 42);
+  --foreground: oklch(0.92 0.03 55);
+  --card: oklch(0.18 0.02 42);
+  --card-foreground: oklch(0.92 0.03 55);
+  --popover: oklch(0.18 0.02 42);
+  --popover-foreground: oklch(0.92 0.03 55);
+  --primary: oklch(0.7 0.15 55);
+  --primary-foreground: oklch(0.12 0.01 40);
+  --secondary: oklch(0.25 0.03 45);
+  --secondary-foreground: oklch(0.88 0.03 55);
+  --muted: oklch(0.23 0.02 42);
+  --muted-foreground: oklch(0.68 0.04 50); /* 8bitcn uses 0.6; nudged up for tiny pixel text */
+  --accent: oklch(0.65 0.12 45);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.55 0.2 25);
+  --border: oklch(0.3 0.03 45);
+  --input: oklch(0.3 0.03 45);
+  --ring: oklch(0.4 0.08 50); /* 8bitcn draws dark-mode pixel borders with --ring */
+
+  --hot: oklch(0.7 0.15 55); /* torch */
+  --cool: oklch(0.82 0.1 80); /* lantern gold */
+  --on-cool: oklch(0.15 0.02 40);
+  --edge: oklch(0.4 0.08 50);
+  --line: oklch(0.92 0.03 55);
+  --solid: oklch(0.7 0.15 55);
+  --on-solid: oklch(0.12 0.01 40);
+  --screen: oklch(0.11 0.015 40);
+  --screen-fg: oklch(0.92 0.03 55);
+  --text: oklch(0.9 0.03 55);
+  --link: oklch(0.82 0.1 80);
+}
+
+/*
+ * Page ground. Kept OUTSIDE @layer on purpose: hosts that wrap the page (like the
+ * Claude artifact viewer) inject an unlayered body background, and unlayered
+ * rules always beat layered ones — so a layered rule here would lose and show white.
+ */
+html,
+body {
+  background-color: var(--background);
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    /* Pixel border decorations sit 6px outside their boxes; never let them
+       create sideways scroll. `clip` (not hidden) keeps position: sticky working. */
+    overflow-x: clip;
+  }
+
+  /* Chunky, always-visible keyboard focus that clears the pixel borders. */
+  :focus-visible {
+    outline: 3px solid var(--color-blue);
+    outline-offset: 7px;
+  }
+
+  ::selection {
+    background: var(--hot);
+    color: #111111;
+  }
+}
+
+/* CRT scanlines — flat 1px stripes, purely decorative. */
+.scanlines {
+  position: relative;
+  isolation: isolate;
+}
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' shape-rendering='crispEdges'%3E%3Crect y='0' width='4' height='1' fill='%23ffffff' fill-opacity='0.045'/%3E%3C/svg%3E");
+}
+
+/* Pixel scrollbar for the panels. */
+.pixel-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--edge) transparent;
+}
+.pixel-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.pixel-scroll::-webkit-scrollbar-thumb {
+  background: var(--edge);
+}
+.pixel-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ——— Motion: stepped, so it reads as pixels rather than easing. ——— */
+@keyframes pixel-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+    clip-path: inset(0 0 100% 0);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+.animate-pixel-in {
+  animation: pixel-in 360ms steps(6, end) both;
+}
+
+@keyframes pixel-bounce {
+  0% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(-6px) scale(1.15); }
+  50% { transform: translateY(0) scale(0.95); }
+  75% { transform: translateY(-2px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); }
+}
+.animate-pixel-bounce {
+  animation: pixel-bounce 420ms steps(4, end);
+}
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.animate-blink {
+  animation: blink 1.1s steps(1, end) infinite;
+}
+
+@keyframes press-start {
+  0%, 59% { opacity: 1; }
+  60%, 100% { opacity: 0.25; }
+}
+.animate-press-start {
+  animation: press-start 1.4s steps(1, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pixel-in,
+  .animate-pixel-bounce,
+  .animate-blink,
+  .animate-press-start {
+    animation: none !important;
+  }
+}
